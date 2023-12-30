@@ -17,7 +17,7 @@ local FastCanvas = {}
 
 local Allowed
 
-function FastCanvas.new(Width: number, Height: number, CanvasParent: Frame | ImageLabel | Decal | MeshPart | ImageButton, Blur: boolean?)
+function FastCanvas.new(Width: number, Height: number, CanvasParent: GuiObject, Blur: boolean?)
 	
 	local Canvas = {} -- The canvas object
 	local Grid = table.create(Width * Height * 4, 1) -- Local pixel grid containing RGBA values
@@ -31,9 +31,6 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: Frame | Ima
 	end
 	
 	-- Create gui objects
-	if CanvasParent:IsA("ImageLabel") or CanvasParent:IsA("ImageButton") or CanvasParent:IsA("Decal") or CanvasParent:IsA("MeshPart") then
-		
-	end
 	
 	local CanvasFrame = Instance.new("ImageLabel")
 	CanvasFrame.Name = "FastCanvas"
