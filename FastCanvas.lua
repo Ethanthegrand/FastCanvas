@@ -16,17 +16,17 @@
 
 local FastCanvas = {}
 
-function FastCanvas.new(Resolution: Vector2, Object: Instance, Blur: boolean?)
+function FastCanvas.new(Width: number, Height: number, Object: Instance, Blur: boolean?)
 	
 	local Canvas = {} -- The canvas object
-	local Grid = table.create(Resolution.X * Resolution.Y * 4, 1) -- Local pixel grid containing RGBA values
-	
-	local ResX, ResY = Resolution.X, Resolution.Y
+	local Grid = table.create(Width * Height * 4, 1) -- Local pixel grid containing RGBA values
+
 	local Origin = Vector2.zero
+	local Resolution = Vector2.new(Width, Height)
 	
 	-- Local functions
 	local function GetGridIndex(X, Y)
-		return (X + (Y - 1) * ResX) * 4 - 3
+		return (X + (Y - 1) * Width) * 4 - 3
 	end
 	
 	-- Create gui objects
@@ -43,7 +43,7 @@ function FastCanvas.new(Resolution: Vector2, Object: Instance, Blur: boolean?)
 	end
 
 	local AspectRatio = Instance.new("UIAspectRatioConstraint")
-	AspectRatio.AspectRatio = ResX / ResY
+	AspectRatio.AspectRatio = Width / Height
 	AspectRatio.Parent = CanvasFrame
 	
 	local EditableImage = Instance.new("EditableImage")
