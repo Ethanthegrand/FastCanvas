@@ -1,22 +1,23 @@
 --!native
 
 --[[
-
 	FastCanvas is a simple, but very fast and efficent 
-	drawing canvas with per pixel methods via EditableImage
+	drawing canvas with per pixel methods via EditableImage.
+	
+	This module was designed to be intergrated with CanvasDraw. 
+	A real-time roblox pixel graphics engine.
 
 	Written by @Ethanthegrand14
 	
 	Created: 9/11/2023
-	Last Updated: 15/12/2023
-	
-	Copyright © 2023
-	Do not redistribute!
+	Last Updated: 30/12/2023
 ]]
 
 local FastCanvas = {}
 
-function FastCanvas.new(Width: number, Height: number, Object: Instance, Blur: boolean?)
+local Allowed
+
+function FastCanvas.new(Width: number, Height: number, CanvasParent: Frame | ImageLabel | Decal | MeshPart | ImageButton, Blur: boolean?)
 	
 	local Canvas = {} -- The canvas object
 	local Grid = table.create(Width * Height * 4, 1) -- Local pixel grid containing RGBA values
@@ -30,6 +31,10 @@ function FastCanvas.new(Width: number, Height: number, Object: Instance, Blur: b
 	end
 	
 	-- Create gui objects
+	if CanvasParent:IsA("ImageLabel") or CanvasParent:IsA("ImageButton") or CanvasParent:IsA("Decal") or CanvasParent:IsA("MeshPart") then
+		
+	end
+	
 	local CanvasFrame = Instance.new("ImageLabel")
 	CanvasFrame.Name = "FastCanvas"
 	CanvasFrame.BackgroundTransparency = 1
@@ -50,7 +55,7 @@ function FastCanvas.new(Width: number, Height: number, Object: Instance, Blur: b
 	EditableImage.Size = Resolution
 	EditableImage.Parent = CanvasFrame
 	
-	CanvasFrame.Parent = Object
+	CanvasFrame.Parent = CanvasParent
 	
 	-- Canvas properties
 	
