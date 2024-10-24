@@ -12,8 +12,10 @@
 	Written by @Ethanthegrand14
 	
 	Created: 9/11/2023
-	Last Updated: 20/09/2024
+	Last Updated: 24/10/2024
 ]]
+
+local AssetService = game:GetService("AssetService")
 
 local FastCanvas = {}
 
@@ -60,8 +62,7 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 	
 	-- Create gui objects
 	
-	local EditableImage = Instance.new("EditableImage")
-	EditableImage.Size = Resolution
+	local EditableImage = AssetService:CreateEditableImage({Size = Resolution})
 	
 	local CanvasFrame
 	local AspectRatio
@@ -83,7 +84,7 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		AspectRatio.AspectRatio = Width / Height
 		AspectRatio.Parent = CanvasFrame
 		
-		EditableImage.Parent = CanvasFrame
+		CanvasFrame.ImageContent = Content.fromObject(EditableImage)
 		CanvasFrame.Parent = CanvasParent
 	else
 		EditableImage.Parent = CanvasParent
@@ -150,13 +151,17 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 	
 	-- Canvas methods
 	
-	function Canvas:SetGrid(PixelArray)
+	function Canvas:SetGrid(PixelArray: {number})
 		for i, Value in pairs(PixelArray) do
 			buffer.writeu8(Grid, i - 1, Value * 255)
 		end
 	end
+	
+	function Canvas:SetBuffer(Buffer: buffer)
+		buffer.copy(Grid, 0, Buffer)
+	end
 
-	function Canvas:GetGrid()
+	function Canvas:GetGrid(): {number}
 		local ReturnArray = {}
 		
 		for i = 1, Width * Height * 4 do
@@ -164,6 +169,13 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		end
 		
 		return ReturnArray
+	end
+	
+	function Canvas:GetBuffer(): buffer
+		local ReturnBuffer = buffer.create(Width * Height * 4)
+		buffer.copy(ReturnBuffer, 0, Grid)
+		
+		return ReturnBuffer
 	end
 	
 	function Canvas:SetClearRGBA(R, G, B, A)
