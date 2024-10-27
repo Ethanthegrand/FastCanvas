@@ -19,7 +19,7 @@ local AssetService = game:GetService("AssetService")
 
 local FastCanvas = {}
 
-type ParentType = GuiObject | Decal | Texture | SurfaceAppearance | MeshPart
+type ParentType = GuiObject | MeshPart
 
 function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType, Blur: boolean?)
 	local IsUiParent = CanvasParent:IsA("GuiObject")
@@ -87,7 +87,8 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		CanvasFrame.ImageContent = Content.fromObject(EditableImage)
 		CanvasFrame.Parent = CanvasParent
 	else
-		EditableImage.Parent = CanvasParent
+		assert(CanvasParent:IsA("MeshPart"), CanvasParent.ClassName .. " is currently not supported as a canvas parent!")
+		CanvasParent.TextureContent = Content.fromObject(EditableImage)
 	end
 	
 	-- Properties [READ ONLY]
