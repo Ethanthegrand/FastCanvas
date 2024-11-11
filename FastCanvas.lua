@@ -200,7 +200,11 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 	function Canvas:Resize(NewWidth, NewHeight)	
 		Width, Height = NewWidth, NewHeight
 		Resolution = Vector2.new(NewWidth, NewHeight)
-		EditableImage.Size = Resolution
+		EditableImage:Destroy()
+		
+		EditableImage = AssetService:CreateEditableImage({Size = Resolution})
+		
+		CanvasFrame.ImageContent = Content.fromObject(EditableImage)
 		
 		Canvas.Width, Canvas.Height = NewWidth, NewHeight
 		
