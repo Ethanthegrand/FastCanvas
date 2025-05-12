@@ -12,7 +12,7 @@
 	Written by @Ethanthegrand14
 	
 	Created: 9/11/2023
-	Last Updated: 26/02/2025
+	Last Updated: 24/04/2025
 ]]
 
 local AssetService = game:GetService("AssetService")
@@ -51,13 +51,10 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 	-- Create gui objects
 
 	local EditableImage = AssetService:CreateEditableImage({Size = Resolution})
-
+	
 	if not EditableImage then
-		repeat
-			warn("Failed to create Canvas due to EditableImage memory limit being hit! Retrying in 5 seconds...")
-			EditableImage = AssetService:CreateEditableImage({Size = Resolution})
-			task.wait(5)
-		until EditableImage
+		warn("Failed to create Canvas due to EditableImage memory limit being hit!")
+		return nil :: typeof(Canvas)
 	end
 
 	local CanvasFrame
@@ -97,11 +94,11 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 	-- Pixel methods
 	
 	--[[
-		A simple way to set a pixel colour on the canvas.
+		<strong>DEPRECATED</strong>
 		
-		For faster alternatives, try;
-		- <code>Canvas:SetRGB()</code>
-		- <code>Canvas:SetPixel()</code>
+		For better alternatives, try;
+		- <code>Canvas:SetU32()</code>
+		- <code>Canvas:SetRGBA()</code>
 	]]
 	function Canvas:SetColor3(X: number, Y: number, Colour: Color3)
 		local Index = GetGridIndex(X, Y)
@@ -110,7 +107,7 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		buffer.writeu8(Grid, Index + 2, Colour.B * 255)
 	end
 	
-	-- Sets a pixels RGB value on the canvas
+	-- Sets a pixel's RGB value on the canvas
 	function Canvas:SetRGB(X: number, Y: number, R: number, G: number, B: number)
 		local Index = GetGridIndex(X, Y)
 		buffer.writeu8(Grid, Index, R * 255)
@@ -118,14 +115,15 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		buffer.writeu8(Grid, Index + 2, B * 255)
 	end
 	
-	-- Sets a pixels RGBA value on the canvas
+	-- Sets a pixel's RGBA value on the canvas
 	function Canvas:SetRGBA(X: number, Y: number, R: number, G: number, B: number, A: number)
 		buffer.writeu32(Grid, GetGridIndex(X, Y), bit32bor(
 			bit32lshift(A * 255, 24),
 			bit32lshift(B * 255, 16),
 			bit32lshift(G * 255, 8),
 			R * 255
-		)) 
+			)
+		)
 	end
 	
 	-- Sets the alpha value of a pixel on the canvas
@@ -133,34 +131,40 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		buffer.writeu8(Grid, GetGridIndex(X, Y) + 3, Alpha * 255)
 	end
 	
+	-- Sets the pixel value on the canvas by using a U32 colour value
 	function Canvas:SetU32(X: number, Y: number, Value: number)
 		buffer.writeu32(Grid, GetGridIndex(X, Y), Value)
 	end
 
 	-- Pixel fetch methods
-
+	
+	-- Returns the pixel value on the canvas as a tuple in order; R, G, B
 	function Canvas:GetRGB(X: number, Y: number): (number, number, number)
 		local Index = GetGridIndex(X, Y)
 
 		return buffer.readu8(Grid, Index) / 255, buffer.readu8(Grid, Index + 1) / 255, buffer.readu8(Grid, Index + 2) / 255
 	end
 	
+	-- Returns the pixel value on the canvas as a tuple in order; R, G, B, A
 	function Canvas:GetRGBA(X: number, Y: number): (number, number, number, number)
 		local Index = GetGridIndex(X, Y)
 
 		return buffer.readu8(Grid, Index) / 255, buffer.readu8(Grid, Index + 1) / 255, buffer.readu8(Grid, Index + 2) / 255, buffer.readu8(Grid, Index + 3) / 255
 	end
 	
+	-- Returns the pixel value on the canvas as a U32 number
 	function Canvas:GetU32(X: number, Y: number): number
 		return buffer.readu32(Grid, GetGridIndex(X, Y))
 	end
-
+	
+	-- Returns the pixel value on the canvas as a Color3
 	function Canvas:GetColor3(X: number, Y: number): Color3
 		local Index = GetGridIndex(X, Y)
 
 		return Color3.new(buffer.readu8(Grid, Index) / 255, buffer.readu8(Grid, Index + 1) / 255, buffer.readu8(Grid, Index + 2) / 255)
 	end
-
+	
+	-- Returns the pixel alpha value on the canvas
 	function Canvas:GetAlpha(X: number, Y: number): number
 		local Index = GetGridIndex(X, Y)
 
@@ -221,11 +225,18 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 	end
 
 	function Canvas:Resize(NewWidth, NewHeight)	
+		local NewEditableImage = AssetService:CreateEditableImage({Size = Vector2.new(NewWidth, NewHeight)})
+		
+		if not EditableImage then
+			warn("Failed to resize Canvas due to EditableImage memory limit being hit!")
+			return
+		end
+		
 		Width, Height = NewWidth, NewHeight
 		Resolution = Vector2.new(NewWidth, NewHeight)
-		EditableImage:Destroy()
 
-		EditableImage = AssetService:CreateEditableImage({Size = Resolution})
+		EditableImage:Destroy()
+		EditableImage = NewEditableImage
 
 		CanvasFrame.ImageContent = Content.fromObject(EditableImage)
 
@@ -262,7 +273,7 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 		Grid = nil
 		Canvas = nil
 	end
-
+	
 	return Canvas
 end
 
