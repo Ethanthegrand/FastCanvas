@@ -362,7 +362,7 @@ function FastCanvas.new(Width: number, Height: number, CanvasParent: ParentType,
 				Y * Width * 4,
 				ClearingGrid,
 				0,
-				Width * 4
+				Length
 			)
 		end
 	end
